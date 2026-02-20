@@ -1,0 +1,31 @@
+# Build folders
+target/
+bin/
+out/
+build/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Environment variables (Crucial to hide!)
+.env
+
+# Logs and temp files
+*.log
+*.txt
+auth_logs*.txt
+logs.txt
+
+# Maven artifacts
+mvnw
+mvnw.cmd
+.mvn/
+
+# Docker
+.docker/
+
+# System files
+.DS_Store
+Thumbs.db
