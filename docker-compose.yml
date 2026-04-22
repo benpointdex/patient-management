@@ -22,8 +22,8 @@ services:
       - billing-service
 
     environment:
-      DB_URL: jdbc:postgresql://db:5432/patient_db
-      DB_USERNAME: postgres
+      PATIENT_DB_URL: jdbc:postgresql://db:5432/patient_db
+      DB_USER: postgres
       DB_PASSWORD: ${DB_PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       BILLING_GRPC_HOST: billing-service
@@ -34,11 +34,18 @@ services:
   billing-service:
     build: ./billing-serivce
     container_name: billing-service
+    depends_on:
+      - bill-db
+      - kafka
     ports:
       - "8085:8085"  # HTTP port
       - "9001:9001"  # gRPC port
     environment:
       SPRING_APPLICATION_NAME: billing-serivce
+      BILLING_DB_URL: jdbc:postgresql://bill-db:5432/billing_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
   kafka:
     image: apache/kafka:3.7.0
@@ -82,12 +89,18 @@ services:
   analytics-service:
     build: ./analytics-service
     container_name: analytics-service
+    depends_on:
+      - analytics-db
     ports:
       - "8088:8087"  # HTTP port
       - "9004:9003"  # gRPC port
     environment:
       SPRING_APPLICATION_NAME: analytics-service
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      ANALYTICS_DB_URL: jdbc:postgresql://analytics-db:5432/analytics_db
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+
 
 
   gateway-service:
@@ -122,8 +135,33 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+  bill-db:
+    image: postgres:latest
+    container_name: billing-db
+    environment:
+      POSTGRES_DB: billing_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - billing-data:/var/lib/postgresql/data
 
+  analytics-db:
+    image: postgres:latest
+    container_name: analytics-db
+    environment:
+      POSTGRES_DB: analytics_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5436:5432"
+    volumes:
+      - analytics-data:/var/lib/postgresql/data
 
 volumes:
   postgres-data:
   auth-data:
+  billing-data:
+  analytics-data:
+
