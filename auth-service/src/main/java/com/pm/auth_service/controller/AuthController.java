@@ -5,11 +5,13 @@ import com.pm.auth_service.dto.LoginRequestDTO;
 import com.pm.auth_service.dto.LoginResponseDTO;
 import com.pm.auth_service.dto.RegisterRequestDTO;
 import com.pm.auth_service.service.AuthService;
+import com.pm.auth_service.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequestDTO registerRequestDTO) {
@@ -45,17 +48,15 @@ public class AuthController {
 
     }
 
+
     @GetMapping("/validate")
-    public ResponseEntity<Void> validateToken(
-            @RequestHeader("Authorization") String authHeader) {
-
-        // Authorization: Bearer <token>
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<Map<String, String>> validateToken(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        if(authService.validateToken(token)) {
+            String role = jwtUtil.getRoleFromToken(token); // Get the role
+            return ResponseEntity.ok(Map.of("role", role)); // Send it back
         }
-
-        return authService.validateToken(authHeader.substring(7))
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
 }
