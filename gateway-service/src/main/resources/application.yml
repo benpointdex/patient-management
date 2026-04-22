@@ -3,25 +3,45 @@ server:
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.http.server.reactive: DEBUG
-    org.springframework.web.reactive: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.http.server.reactive: INFO
+    org.springframework.web.reactive: INFO
 
 spring:
   cloud:
     gateway:
       routes:
+        # 1. Auth Service (No security filter needed here)
         - id: auth-service-route
           uri: http://auth-service:4005
           predicates:
-            - Path=/api/v1/**
+            - Path=/api/v1/auth/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=3
 
+        # 2. Patient Service
         - id: patient-service-route
           uri: http://patient-service:8080
           predicates:
             - Path=/api/patients/**
           filters:
+            - JwtValidation  # Added Security Filter
             - StripPrefix=1
-            - JwtValidation
+
+        # 3. Billing Service
+        - id: billing-service-route
+          uri: http://billing-service:8085
+          predicates:
+            - Path=/api/billing/**
+          filters:
+            - JwtValidation  # Added Security Filter
+            - StripPrefix=0
+
+        # 4. Analytics Service
+        - id: analytics-service-route
+          uri: http://analytics-service:8087
+          predicates:
+            - Path=/api/analytics/**
+          filters:
+            - JwtValidation  # Added Security Filter
+            - StripPrefix=0
