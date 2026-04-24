@@ -24,6 +24,10 @@ public class KafkaProducer {
                 .setPatientId(patient.getId().toString())
                 .setName(patient.getName())
                 .setEmail(patient.getEmail())
+                .setAddress(patient.getAddress())
+                .setGender(patient.getGender())
+                .setDateOfBirth(patient.getDateOfBirth().toString())
+
                 .setEventType("PATIENT_CREATED")
                 .build();
 

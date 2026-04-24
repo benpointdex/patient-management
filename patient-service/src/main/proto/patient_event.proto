@@ -7,5 +7,8 @@ message PatientEvent {
   string patientId = 1;
   string name = 2;
   string email = 3;
-  string event_type = 4;
+  string address = 4;
+  string gender = 5;
+  string event_type = 6;
+  string date_of_birth = 7;
 }
