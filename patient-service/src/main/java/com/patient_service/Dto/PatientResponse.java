@@ -9,4 +9,6 @@ public class PatientResponse {
     private String email;
     private String address;
     private String dateOfBirth;
+    private String gender;
+    private String registeredDate;
 }

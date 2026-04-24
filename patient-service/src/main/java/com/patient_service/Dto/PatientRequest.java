@@ -14,6 +14,9 @@ public class PatientRequest {
     @Size(max = 100, message = "Name cannot exceed 100 characters")
     private String name;
 
+    @NotBlank(message = "Specify your gender")
+    private String gender;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;

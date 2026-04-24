@@ -36,6 +36,8 @@ public class PatientService {
         patientResponse.setAddress(patient.getAddress());
         patientResponse.setEmail(patient.getEmail());
         patientResponse.setDateOfBirth(patient.getDateOfBirth().toString());
+        patientResponse.setGender(patient.getGender());
+        patientResponse.setRegisteredDate(patient.getRegisteredDate().toString());
 
         return patientResponse;
     }
@@ -48,6 +50,7 @@ public class PatientService {
         patient.setAddress(patientRequest.getAddress());
         patient.setDateOfBirth(LocalDate.parse(patientRequest.getDateOfBirth()));
         patient.setRegisteredDate(LocalDate.parse(patientRequest.getRegisteredDate()));
+        patient.setGender(patientRequest.getGender());
         return patient;
     }
 
@@ -64,9 +67,14 @@ public class PatientService {
         }
         Patient patient1 = patientRepository.save(requestToPatient(patientRequest));
 
-        billingServiceGrpcClient.createBillingAccount(patient1.getId().toString(),patient1.getEmail(),
-                patient1.getName());
-        kafkaProducer.sendEvent(patient1);
+        try {
+            billingServiceGrpcClient.createBillingAccount(patient1.getId().toString(), patient1.getEmail(), patient1.getName());
+            kafkaProducer.sendEvent(patient1);
+        } catch (Exception e) {
+            System.err.println("Post-registration tasks failed: " + e.getMessage());
+            // We log the error but still return success to the user since the patient is saved
+        }
+
         return mapToDto(patient1);
     }
 
@@ -80,10 +88,16 @@ public class PatientService {
         patient.setEmail(patientRequest.getEmail());
         patient.setAddress(patientRequest.getAddress());
         patient.setDateOfBirth(LocalDate.parse(patientRequest.getDateOfBirth()));
+        patient.setGender(patientRequest.getGender());
 
         Patient saved = patientRepository.save(patient);
 
         return mapToDto(saved);
+    }
 
+    public PatientResponse getPatientByEmail(String email) {
+        Patient patient = patientRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found with email: " + email));
+        return mapToDto(patient);
     }
 }

@@ -44,4 +44,10 @@ public class PatientController {
         PatientResponse patientResponse = patientService.updatePatient(id, patientRequest);
         return ResponseEntity.ok().body(patientResponse);
     }
+
+    @GetMapping("/lookup")
+    public ResponseEntity<PatientResponse> getPatientByEmail(@RequestParam String email) {
+        PatientResponse patient = patientService.getPatientByEmail(email);
+        return ResponseEntity.ok().body(patient);
+    }
 }
