@@ -17,6 +17,18 @@ build/
 *.txt
 auth_logs*.txt
 logs.txt
+analytics-logs.txt
+billing-logs.txt
+*_logs*.txt
+
+# Frontend sensitive files
+pm-front/package-lock.json
+pm-front/.env.local
+pm-front/.env.production
+
+# All environment files except example
+.env*
+!.env.example
 
 # Maven artifacts
 mvnw
