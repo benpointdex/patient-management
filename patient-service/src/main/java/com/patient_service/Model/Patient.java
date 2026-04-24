@@ -34,4 +34,8 @@ public class Patient {
 
     @NotNull
     private LocalDate registeredDate;
+
+    @NotNull
+    private String gender;
+
 }
