@@ -25,6 +25,9 @@ public class JwtValidationGatewayFilterFactory extends AbstractGatewayFilterFact
     @Override
     public GatewayFilter apply(Object config) {
         return (exchange, chain) -> {
+            if (exchange.getRequest().getMethod().name().equals("OPTIONS")) {
+                return chain.filter(exchange);
+            }
             String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
             log.info("JWT Validation - Auth header present: {}", authHeader != null);
 

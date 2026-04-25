@@ -7,11 +7,16 @@ import com.patient_service.grpc.BillingServiceGrpcClient;
 import com.patient_service.kafka.KafkaProducer;
 import com.patient_service.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+
 
     private final BillingServiceGrpcClient billingServiceGrpcClient;
 
@@ -61,6 +67,8 @@ public class PatientService {
         return patientList.stream().map(this::mapToDto).toList();
     }
 
+    @CacheEvict(value = "patients", key = "#patientRequest.email")
+
     public PatientResponse createPatient(PatientRequest patientRequest){
         if(patientRepository.existsByEmail(patientRequest.getEmail())){
             throw new ResponseStatusException(HttpStatus.CONFLICT , "Patient with this email already exists");
@@ -78,6 +86,8 @@ public class PatientService {
         return mapToDto(patient1);
     }
 
+    @CacheEvict(value = "patients", key = "#patientRequest.email")
+
     public PatientResponse updatePatient(UUID id, PatientRequest patientRequest){
         Patient patient = patientRepository.findById(id).orElseThrow(()-> new RuntimeException("Patient not found"));
         if(patientRepository.existsByEmailAndIdNot(patientRequest.getEmail() , id)){
@@ -94,6 +104,8 @@ public class PatientService {
 
         return mapToDto(saved);
     }
+
+    @Cacheable(value = "patients", key = "#email")
 
     public PatientResponse getPatientByEmail(String email) {
         Patient patient = patientRepository.findByEmail(email)
