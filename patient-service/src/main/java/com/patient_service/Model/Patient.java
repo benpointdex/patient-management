@@ -38,4 +38,6 @@ public class Patient {
     @NotNull
     private String gender;
 
+    private String password;
+
 }

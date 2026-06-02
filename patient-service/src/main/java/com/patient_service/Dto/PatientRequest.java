@@ -31,4 +31,6 @@ public class PatientRequest {
             "Registered date is required")
     private String registeredDate;
 
+    private String password;
+
 }
