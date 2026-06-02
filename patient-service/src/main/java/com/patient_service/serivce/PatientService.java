@@ -4,6 +4,7 @@ import com.patient_service.Dto.PatientRequest;
 import com.patient_service.Dto.PatientResponse;
 import com.patient_service.Model.Patient;
 import com.patient_service.grpc.BillingServiceGrpcClient;
+import com.patient_service.grpc.DoctorServiceGrpcClient;
 import com.patient_service.kafka.KafkaProducer;
 import com.patient_service.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,8 @@ import java.util.stream.Collectors;
 public class PatientService {
 
     private final PatientRepository patientRepository;
-
-
     private final BillingServiceGrpcClient billingServiceGrpcClient;
-
+    private final DoctorServiceGrpcClient doctorServiceGrpcClient;
     private final KafkaProducer kafkaProducer;
     public PatientResponse mapToDto(Patient patient){
 
@@ -57,6 +56,7 @@ public class PatientService {
         patient.setDateOfBirth(LocalDate.parse(patientRequest.getDateOfBirth()));
         patient.setRegisteredDate(LocalDate.parse(patientRequest.getRegisteredDate()));
         patient.setGender(patientRequest.getGender());
+        patient.setPassword(patientRequest.getPassword());
         return patient;
     }
 
@@ -70,10 +70,27 @@ public class PatientService {
     @CacheEvict(value = "patients", key = "#patientRequest.email")
 
     public PatientResponse createPatient(PatientRequest patientRequest){
+        if (patientRequest.getPassword() == null || patientRequest.getPassword().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
+        }
         if(patientRepository.existsByEmail(patientRequest.getEmail())){
             throw new ResponseStatusException(HttpStatus.CONFLICT , "Patient with this email already exists");
         }
         Patient patient1 = patientRepository.save(requestToPatient(patientRequest));
+
+        try {
+            // Provision secure user credentials in auth-service
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            java.util.Map<String, String> authRequest = new java.util.HashMap<>();
+            authRequest.put("email", patient1.getEmail());
+            authRequest.put("password", patientRequest.getPassword());
+            authRequest.put("role", "USER");
+
+            restTemplate.postForEntity("http://auth-service:4005/register", authRequest, String.class);
+            System.out.println("Patient user account provisioned successfully in auth-service");
+        } catch (Exception e) {
+            System.err.println("auth-service provisioning skipped/failed (likely already exists): " + e.getMessage());
+        }
 
         try {
             billingServiceGrpcClient.createBillingAccount(patient1.getId().toString(), patient1.getEmail(), patient1.getName());
@@ -111,5 +128,16 @@ public class PatientService {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found with email: " + email));
         return mapToDto(patient);
+    }
+
+    public java.util.Map<String, Object> checkDoctorVerification(String doctorId) {
+        var response = doctorServiceGrpcClient.verifyDoctorActive(doctorId);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("doctorId", doctorId);
+        result.put("isActive", response.getIsActive());
+        result.put("fullName", response.getFullName());
+        result.put("specialization", response.getSpecializationName());
+        result.put("department", response.getDepartmentName());
+        return result;
     }
 }
