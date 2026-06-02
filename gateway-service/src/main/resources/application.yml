@@ -45,3 +45,21 @@ spring:
           filters:
             - JwtValidation  # Added Security Filter
             - StripPrefix=0
+
+        # 5. Doctor Service
+        - id: doctor-service-route
+          uri: http://doctor-service:8095
+          predicates:
+            - Path=/api/doctors, /api/doctors/**
+          filters:
+            - JwtValidation  # Added Security Filter
+            - StripPrefix=0
+
+        # 6. Appointment Service
+        - id: appointment-service-route
+          uri: http://appointment-service:8082
+          predicates:
+            - Path=/api/appointments, /api/appointments/**
+          filters:
+            - JwtValidation  # Added Security Filter
+            - StripPrefix=0
