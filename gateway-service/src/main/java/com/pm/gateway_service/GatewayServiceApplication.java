@@ -20,10 +20,10 @@ public class GatewayServiceApplication {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-User-Role")); // Explicitly allow X-User-Role
-        config.setExposedHeaders(Arrays.asList("Authorization"));
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
+        config.setAllowedMethods(Arrays.asList("*"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setExposedHeaders(Arrays.asList("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
