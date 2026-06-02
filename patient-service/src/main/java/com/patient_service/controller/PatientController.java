@@ -50,4 +50,9 @@ public class PatientController {
         PatientResponse patient = patientService.getPatientByEmail(email);
         return ResponseEntity.ok().body(patient);
     }
+
+    @GetMapping("/verify-doctor/{doctorId}")
+    public ResponseEntity<?> verifyDoctor(@PathVariable String doctorId) {
+        return ResponseEntity.ok(patientService.checkDoctorVerification(doctorId));
+    }
 }
