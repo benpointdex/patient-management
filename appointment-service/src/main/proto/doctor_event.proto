@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package doctor.events;
+option java_multiple_files = true;
+
+message DoctorEvent {
+  string doctorId = 1;
+  string fullName = 2;
+  string departmentName = 3;
+  string specializationName = 4;
+  string status = 5;               // e.g. "ACTIVE", "ON_LEAVE"
+  string availabilityStatus = 6;   // e.g. "AVAILABLE", "BUSY"
+  double consultationFee = 7;
+  string eventType = 8;            // e.g. "DOCTOR_CREATED", "STATUS_CHANGED", "ON_LEAVE"
+  string timestamp = 9;
+}
