@@ -55,4 +55,10 @@ public class InvoiceController {
         }
         return invoiceService.getUnpaidInvoices();
     }
+
+    @GetMapping("/appointment/{appointmentId}")
+    public Invoice getInvoiceByAppointment(@PathVariable String appointmentId) {
+        return invoiceService.getInvoiceByAppointmentId(appointmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No invoice found for this appointment yet."));
+    }
 }

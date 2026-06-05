@@ -11,4 +11,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findByPatientId(String patientId);
     List<Invoice> findByStatus(Invoice.InvoiceStatus status);
     List<Invoice> findByStatusIn(List<Invoice.InvoiceStatus> statuses);
+    boolean existsByAppointmentId(String appointmentId);
+    java.util.Optional<Invoice> findByAppointmentId(String appointmentId);
 }
