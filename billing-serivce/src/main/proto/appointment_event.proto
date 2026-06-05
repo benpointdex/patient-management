@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.pm.appointment_service.grpc";
+
+message AppointmentEvent {
+  string eventType = 1;      // "APPOINTMENT_SCHEDULED", "APPOINTMENT_COMPLETED", "APPOINTMENT_CANCELED"
+  string appointmentId = 2;
+  string patientId = 3;
+  string doctorId = 4;
+  string timestamp = 5;      // ISO-8601 string
+  string departmentId = 6;   // department ID or name
+}

@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.pm.doctor_service.grpc";
+
+service DoctorGrpcService {
+  // 1. Verify doctor status and return essential profile details
+  rpc VerifyDoctorActive (DoctorIdRequest) returns (DoctorProfileResponse);
+
+  // 2. Validate if a doctor has an active availability shift slot
+  rpc CheckAvailability (AvailabilityRequest) returns (AvailabilityResponse);
+
+  // 3. Query consultation fee and credentials for billing generation
+  rpc GetDoctorConsultationDetails (DoctorIdRequest) returns (ConsultationResponse);
+
+  // 4. Update the doctor stats cache (increment appointment counters)
+  rpc UpdateDoctorStats (UpdateStatsRequest) returns (UpdateStatsResponse);
+}
+
+message DoctorIdRequest {
+  string doctorId = 1;
+}
+
+message DoctorProfileResponse {
+  bool isActive = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string fullName = 4;
+  string specializationName = 5;
+  string departmentName = 6;
+  double consultationFee = 7;
+}
+
+message AvailabilityRequest {
+  string doctorId = 1;
+  string dayOfWeek = 2;       // e.g. "MONDAY"
+  string requestedTime = 3;   // e.g. "10:30:00"
+}
+
+message AvailabilityResponse {
+  bool isAvailable = 1;
+  int32 slotDurationMinutes = 2;
+}
+
+message ConsultationResponse {
+  double consultationFee = 1;
+  string employeeId = 2;
+  string medicalLicenseNumber = 3;
+}
+
+message UpdateStatsRequest {
+  string doctorId = 1;
+  int32 totalAppointmentsDelta = 2;
+  int32 completedAppointmentsDelta = 3;
+  int32 cancelledAppointmentsDelta = 4;
+  int32 patientsHandledDelta = 5;
+  double revenueDelta = 6;
+  double ratingScore = 7;     // New rating score to calculate moving average
+}
+
+message UpdateStatsResponse {
+  bool success = 1;
+  string message = 2;
+}
