@@ -12,6 +12,7 @@ public class InvoiceRequest {
     @Data
     public static class ItemRequest {
         private String serviceName; // Switch to Name
+        private String doctorId;
         private BigDecimal price;    // Switch to Price
         private Integer quantity;
         private BigDecimal amount;

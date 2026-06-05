@@ -23,6 +23,8 @@ public class InvoiceItem {
     @Column(nullable = false)
     private String serviceName;
 
+    private String doctorId;
+
     @Column(nullable = false)
     private BigDecimal price;
 

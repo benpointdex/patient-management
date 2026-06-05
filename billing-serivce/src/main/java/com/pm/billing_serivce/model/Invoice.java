@@ -30,6 +30,9 @@ public class Invoice {
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
+    // Optional: link back to the appointment that triggered this invoice
+    private String appointmentId;
+
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 
@@ -40,7 +43,7 @@ public class Invoice {
     @Builder.Default
     private List<InvoiceItem> items = new ArrayList<>();
 
-    
+    @Builder.Default
     private BigDecimal amountPaid = BigDecimal.ZERO;
     public enum InvoiceStatus {
         UNPAID, PAID, CANCELLED , PARTIALLY_PAID
